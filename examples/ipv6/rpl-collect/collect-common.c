@@ -106,12 +106,13 @@ collect_common_recv(const linkaddr_t *originator, uint8_t seqno, uint8_t hops,
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(collect_common_process, ev, data)
 {
-  static struct etimer period_timer, wait_timer;
+  static struct etimer period_timer, wait_timer, danger_timer;
   PROCESS_BEGIN();
 
   collect_common_net_init();
 
   /* Send a packet every 60-62 seconds. */
+  
   etimer_set(&period_timer, CLOCK_SECOND * PERIOD);
   while(1) {
     PROCESS_WAIT_EVENT();

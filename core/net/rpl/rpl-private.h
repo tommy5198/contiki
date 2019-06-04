@@ -307,6 +307,10 @@ struct rpl_dio {
   rpl_rank_t dag_min_hoprankinc;
   rpl_prefix_t destination_prefix;
   rpl_prefix_t prefix_info;
+#ifdef EM_PROTOCOL
+  uint8_t is_danger;
+#endif
+  
   struct rpl_metric_container mc;
 };
 typedef struct rpl_dio rpl_dio_t;

@@ -119,6 +119,10 @@ struct rpl_parent {
   rpl_rank_t rank;
   uint8_t dtsn;
   uint8_t flags;
+#ifdef EM_PROTOCOL
+  uint8_t is_danger;
+#endif
+
 };
 typedef struct rpl_parent rpl_parent_t;
 /*---------------------------------------------------------------------------*/
@@ -146,6 +150,9 @@ struct rpl_dag {
   struct rpl_instance *instance;
   rpl_prefix_t prefix_info;
   uint32_t lifetime;
+#ifdef EM_PROTOCOL
+  uint8_t is_danger;
+#endif
 };
 typedef struct rpl_dag rpl_dag_t;
 typedef struct rpl_instance rpl_instance_t;
@@ -293,6 +300,10 @@ uip_ds6_nbr_t *rpl_get_nbr(rpl_parent_t *parent);
 void rpl_print_neighbor_list(void);
 int rpl_process_srh_header(void);
 int rpl_srh_get_next_hop(uip_ipaddr_t *ipaddr);
+
+#ifdef EM_PROTOCOL
+void rpl_set_danger(rpl_dag_t *dag);
+#endif
 
 /* Per-parent RPL information */
 NBR_TABLE_DECLARE(rpl_parents);

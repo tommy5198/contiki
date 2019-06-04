@@ -315,7 +315,9 @@ dio_input(void)
   dio.version = buffer[i++];
   dio.rank = get16(buffer, i);
   i += 2;
-
+#ifdef EM_PROTOCOL
+  dio.is_danger = buffer[i++];
+#endif
   PRINTF("RPL: Incoming DIO (id, ver, rank) = (%u,%u,%u)\n",
          (unsigned)dio.instance_id,
          (unsigned)dio.version,
@@ -500,6 +502,10 @@ dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
   set16(buffer, pos, dag->rank);
 #endif /* RPL_LEAF_ONLY */
   pos += 2;
+
+#ifdef EM_PROTOCOL
+  buffer[pos++] = dag->is_danger;
+#endif
 
   buffer[pos] = 0;
   if(dag->grounded) {

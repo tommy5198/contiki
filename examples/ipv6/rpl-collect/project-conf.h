@@ -60,6 +60,11 @@
 
 #define RPL_CONF_DEFAULT_ROUTE_INFINITE_LIFETIME 1
 
+/* em test */
+#define RPL_CONF_OF_OCP RPL_OCP_OF0
+#define RPL_CONF_SUPPORTED_OFS {&rpl_of0}
+#define EM_PROTOCOL
+
 /* Save some ROM */
 #undef UIP_CONF_TCP
 #define UIP_CONF_TCP                   0

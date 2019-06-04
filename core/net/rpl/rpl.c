@@ -352,4 +352,13 @@ rpl_init(void)
 }
 /*---------------------------------------------------------------------------*/
 
+#ifdef EM_PROTOCOL
+void
+rpl_set_danger(rpl_dag_t *dag)
+{
+  dag->is_danger = 1;
+  rpl_reset_dio_timer(dag->instance);
+}
+#endif
+
 /** @}*/

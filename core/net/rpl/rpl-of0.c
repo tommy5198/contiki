@@ -179,7 +179,14 @@ best_parent(rpl_parent_t *p1, rpl_parent_t *p2)
   if(!p2_is_acceptable) {
     return p1_is_acceptable ? p1 : NULL;
   }
-
+#ifdef EM_PROTOCOL
+  if(!p1->is_danger && p2->is_danger) {
+    return p1;
+  }
+  if(p1->is_danger && !p2->is_danger) {
+    return p2;
+  }
+#endif
   dag = p1->dag; /* Both parents are in the same DAG. */
   p1_cost = parent_path_cost(p1);
   p2_cost = parent_path_cost(p2);
