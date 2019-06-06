@@ -415,7 +415,9 @@ rpl_set_root(uint8_t instance_id, uip_ipaddr_t *dag_id)
   instance->lifetime_unit = RPL_DEFAULT_LIFETIME_UNIT;
 
   dag->rank = ROOT_RANK(instance);
-
+#ifdef EM_PROTOCOL
+  dag->is_danger = 0;
+#endif
   if(instance->current_dag != dag && instance->current_dag != NULL) {
     /* Remove routes installed by DAOs. */
     if(RPL_IS_STORING(instance)) {
@@ -1155,6 +1157,9 @@ rpl_join_instance(uip_ipaddr_t *from, rpl_dio_t *dio)
   rpl_set_preferred_parent(dag, p);
   instance->of->update_metric_container(instance);
   dag->rank = rpl_rank_via_parent(p);
+#ifdef EM_PROTOCOL
+  dag->is_danger = dio->is_danger;
+#endif
   /* So far this is the lowest rank we are aware of. */
   dag->min_rank = dag->rank;
 
@@ -1440,6 +1445,11 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
   rpl_dag_t *dag, *previous_dag;
   rpl_parent_t *p;
 
+#ifdef EM_PROTOCOL
+  uint8_t is_danger;
+
+#endif
+
 #if RPL_WITH_MULTICAST
   /* If the root is advertising MOP 2 but we support MOP 3 we can still join
    * In that scenario, we suppress DAOs for multicast targets */
@@ -1517,6 +1527,9 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
 #endif /* RPL_MAX_DAG_PER_INSTANCE > 1 */
   }
 
+#ifdef EM_PROTOCOL
+  is_danger = dag->is_danger;
+#endif
 
   if(dio->rank < ROOT_RANK(instance)) {
     PRINTF("RPL: Ignoring DIO with too low rank: %u\n",
@@ -1557,6 +1570,13 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
    * whether to keep it in the set.
    */
 
+#ifdef EM_PROTOCOL
+  if(!is_danger && dio->is_danger) {
+    PRINTF("RPL_EM: Ignoring DIO from danger zone\n");
+    return;
+  } 
+#endif
+
   p = rpl_find_parent(dag, from);
   if(p == NULL) {
     previous_dag = find_parent_dag(instance, from);
@@ -1586,7 +1606,10 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
       }
     }
   }
-  p->rank = dio->rank;
+  p->rank = dio->rank;  
+#ifdef EM_PROTOCOL
+  p->is_danger = dio->is_danger;
+#endif
 
   if(dio->rank == INFINITE_RANK && p == dag->preferred_parent) {
     /* Our preferred parent advertised an infinite rank, reset DIO timer */

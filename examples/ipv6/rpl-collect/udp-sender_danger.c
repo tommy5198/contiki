@@ -142,7 +142,9 @@ collect_common_send(void)
         parent.u8[LINKADDR_SIZE - 2] = nbr->ipaddr.u8[sizeof(uip_ipaddr_t) - 1];
         parent_etx = rpl_get_parent_rank((uip_lladdr_t *) uip_ds6_nbr_get_ll(nbr)) / 2;
       }
-      
+      PRINTF("Current Preferred parent: ");
+      PRINT6ADDR(rpl_get_parent_ipaddr(preferred_parent));
+      PRINTF("\n");
     }
     rtmetric = dag->rank;
     beacon_interval = (uint16_t) ((2L << dag->instance->dio_intcurrent) / 1000);
