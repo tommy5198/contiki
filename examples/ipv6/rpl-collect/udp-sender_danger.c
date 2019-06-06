@@ -130,7 +130,8 @@ collect_common_send(void)
   dag = rpl_get_any_dag();
   if(dag != NULL) {
   #ifdef EM_PROTOCOL
-    rpl_set_danger(dag);
+    if(!dag->is_danger)
+      rpl_set_danger(dag);
   #endif
     preferred_parent = dag->preferred_parent;
     if(preferred_parent != NULL) {
