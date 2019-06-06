@@ -71,7 +71,7 @@
       <identifier>sky3</identifier>
       <description>Sky Mote Type #sky3</description>
       <source EXPORT="discard">[CONFIG_DIR]/udp-sender_danger.c</source>
-      <commands EXPORT="discard">make udp-sender_dager.sky TARGET=sky</commands>
+      <commands EXPORT="discard">make udp-sender_danger.sky TARGET=sky</commands>
       <firmware EXPORT="copy">[CONFIG_DIR]/udp-sender_danger.sky</firmware>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.RimeAddress</moteinterface>
