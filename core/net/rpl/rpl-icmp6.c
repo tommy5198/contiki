@@ -315,14 +315,15 @@ dio_input(void)
   dio.version = buffer[i++];
   dio.rank = get16(buffer, i);
   i += 2;
-#ifdef EM_PROTOCOL
-  dio.is_danger = buffer[i++];
-#endif
-  PRINTF("RPL: Incoming DIO (id, ver, rank) = (%u,%u,%u)\n",
+
+  PRINTF("RPL: Incoming DIO (id, ver, rank, danger) = (%u,%u,%u)\n",
          (unsigned)dio.instance_id,
          (unsigned)dio.version,
          (unsigned)dio.rank);
-
+#ifdef EM_PROTOCOL
+  dio.is_danger = buffer[i++];
+  PRINTF("RPL: danger= %u\n", dio.is_danger);
+#endif
   dio.grounded = buffer[i] & RPL_DIO_GROUNDED;
   dio.mop = (buffer[i]& RPL_DIO_MOP_MASK) >> RPL_DIO_MOP_SHIFT;
   dio.preference = buffer[i++] & RPL_DIO_PREFERENCE_MASK;

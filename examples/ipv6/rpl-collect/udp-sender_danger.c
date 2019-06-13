@@ -131,8 +131,8 @@ collect_common_send(void)
   dag = rpl_get_any_dag();
   if(dag != NULL) {
   #ifdef EM_PROTOCOL
-    if(!dag->is_danger)
-      rpl_set_danger(dag);
+    //if(!dag->is_danger)
+      //rpl_set_danger(dag);
   #endif
     preferred_parent = dag->preferred_parent;
     if(preferred_parent != NULL) {
@@ -217,6 +217,7 @@ set_global_address(void)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_client_process, ev, data)
 {
+  static struct etimer danger_timer;
   PROCESS_BEGIN();
 
   PROCESS_PAUSE();
@@ -236,10 +237,21 @@ PROCESS_THREAD(udp_client_process, ev, data)
   PRINTF(" local/remote port %u/%u\n",
         UIP_HTONS(client_conn->lport), UIP_HTONS(client_conn->rport));
 
+  etimer_set(&danger_timer, CLOCK_SECOND * 60 * 9);
   while(1) {
     PROCESS_YIELD();
     if(ev == tcpip_event) {
       tcpip_handler();
+    }
+    if(ev == PROCESS_EVENT_TIMER) {
+      if(data == &danger_timer) {
+#ifdef EM_PROTOCOL
+        rpl_dag_t *dag = rpl_get_any_dag();
+        if(dag != NULL) {
+            rpl_set_danger(dag);
+        }
+#endif
+      }
     }
   }
 

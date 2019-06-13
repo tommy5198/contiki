@@ -217,7 +217,14 @@ best_dag(rpl_dag_t *d1, rpl_dag_t *d2)
   if(d1->preference != d2->preference) {
     return d1->preference > d2->preference ? d1 : d2;
   }
-
+#ifdef EM_PROTOCOL
+  if(!d1->is_danger && d2->is_danger) {
+    return d1;
+  }
+  if(d1->is_danger && !d2->is_danger) {
+    return d2;
+  }
+#endif
   return d1->rank < d2->rank ? d1 : d2;
 }
 /*---------------------------------------------------------------------------*/

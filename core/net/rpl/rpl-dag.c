@@ -58,7 +58,7 @@
 #include <limits.h>
 #include <string.h>
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 
 /* A configurable function called after every RPL parent switch */
@@ -699,6 +699,9 @@ rpl_add_parent(rpl_dag_t *dag, rpl_dio_t *dio, uip_ipaddr_t *addr)
       p->dag = dag;
       p->rank = dio->rank;
       p->dtsn = dio->dtsn;
+#ifdef EM_PROTOCOL
+      p->is_danger = dio->is_danger;
+#endif
 #if RPL_WITH_MC
       memcpy(&p->mc, &dio->mc, sizeof(p->mc));
 #endif /* RPL_WITH_MC */
@@ -1397,7 +1400,17 @@ rpl_process_parent_event(rpl_instance_t *instance, rpl_parent_t *p)
       return_value = 0;
     }
   }
-
+#ifdef EM_PROTOCOL
+  if(!instance->current_dag->is_danger && p->is_danger) {
+    PRINTF("EM: reject danger parent\n");
+    rpl_nullify_parent(p);
+    if(p != instance->current_dag->preferred_parent) {
+      return 0;
+    } else {
+      return_value = 0;
+    }
+  }
+#endif
   if(rpl_select_dag(instance, p) == NULL) {
     if(last_parent != NULL) {
       /* No suitable parent anymore; trigger a local repair. */
@@ -1416,6 +1429,9 @@ rpl_process_parent_event(rpl_instance_t *instance, rpl_parent_t *p)
       PRINT6ADDR(rpl_get_parent_ipaddr(instance->current_dag->preferred_parent));
       PRINTF(" (rank %u)\n",
            (unsigned)DAG_RANK(instance->current_dag->preferred_parent->rank, instance));
+#ifdef EM_PROTOCOL
+      PRINTF("danger= %u\n", instance->current_dag->preferred_parent->is_danger);
+#endif
     } else {
       PRINTF("RPL: We don't have any parent");
     }
@@ -1449,7 +1465,9 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
   uint8_t is_danger;
 
 #endif
-
+    PRINTF("RPL: recv DIO from ");
+    PRINT6ADDR(from);
+    PRINTF(" with rank=%u\n", dio->rank);
 #if RPL_WITH_MULTICAST
   /* If the root is advertising MOP 2 but we support MOP 3 we can still join
    * In that scenario, we suppress DAOs for multicast targets */
@@ -1573,7 +1591,7 @@ rpl_process_dio(uip_ipaddr_t *from, rpl_dio_t *dio)
 #ifdef EM_PROTOCOL
   if(!is_danger && dio->is_danger) {
     PRINTF("RPL_EM: Ignoring DIO from danger zone\n");
-    return;
+    //return;
   } 
 #endif
 

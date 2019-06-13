@@ -33,7 +33,7 @@
 #include "net/ip/uip.h"
 #include "net/rpl/rpl.h"
 #include "net/linkaddr.h"
-
+#include "net/rime/rime.h"
 #include "net/netstack.h"
 #include "dev/button-sensor.h"
 #include "dev/serial-line.h"
@@ -99,12 +99,13 @@ tcpip_handler(void)
   linkaddr_t sender;
   uint8_t seqno;
   uint8_t hops;
-
+  uint32_t recT;
   if(uip_newdata()) {
     appdata = (uint8_t *)uip_appdata;
     sender.u8[0] = UIP_IP_BUF->srcipaddr.u8[15];
     sender.u8[1] = UIP_IP_BUF->srcipaddr.u8[14];
     seqno = *appdata;
+    //recT = *(appdata + 2);
     hops = uip_ds6_if.cur_hop_limit - UIP_IP_BUF->ttl + 1;
     collect_common_recv(&sender, seqno, hops,
                         appdata + 2, uip_datalen() - 2);

@@ -66,6 +66,7 @@ clock_time(void)
 unsigned long
 clock_seconds(void)
 {
+
 /* Returne seconds since startup */
   long secs,msecs;
   struct timeval tv;

@@ -33,6 +33,7 @@
 #include "net/ip/uip-udp-packet.h"
 #include "net/rpl/rpl.h"
 #include "dev/serial-line.h"
+#include "net/rime/rime.h"
 #if CONTIKI_TARGET_Z1
 #include "dev/uart0.h"
 #else
@@ -52,7 +53,7 @@
 
 static struct uip_udp_conn *client_conn;
 static uip_ipaddr_t server_ipaddr;
-
+static unsigned long time_offset;
 /*---------------------------------------------------------------------------*/
 PROCESS(udp_client_process, "UDP client process");
 AUTOSTART_PROCESSES(&udp_client_process, &collect_common_process);
@@ -94,6 +95,12 @@ tcpip_handler(void)
   }
 }
 /*---------------------------------------------------------------------------*/
+static unsigned long
+get_time(void)
+{
+  return clock_seconds() + time_offset;
+}
+
 void
 collect_common_send(void)
 {
@@ -101,6 +108,7 @@ collect_common_send(void)
   struct {
     uint8_t seqno;
     uint8_t for_alignment;
+    //rtimer_clock_t timestamp;
     struct collect_view_data_msg msg;
   } msg;
   /* struct collect_neighbor *n; */
@@ -123,6 +131,7 @@ collect_common_send(void)
     seqno = 128;
   }
   msg.seqno = seqno;
+  //msg.timestamp = timesynch_time();
 
   linkaddr_copy(&parent, &linkaddr_null);
   parent_etx = 0;

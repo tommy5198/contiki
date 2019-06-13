@@ -41,7 +41,7 @@
 #include "dev/serial-line.h"
 #include "dev/leds.h"
 #include "collect-common.h"
-
+#include "net/rime/rime.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -50,7 +50,7 @@ static unsigned long time_offset;
 static int send_active = 1;
 
 #ifndef PERIOD
-#define PERIOD 60
+#define PERIOD 5
 #endif
 #define RANDWAIT (PERIOD)
 
@@ -81,17 +81,18 @@ collect_common_set_send_active(int active)
 }
 /*---------------------------------------------------------------------------*/
 void
-collect_common_recv(const linkaddr_t *originator, uint8_t seqno, uint8_t hops,
-                    uint8_t *payload, uint16_t payload_len)
+collect_common_recv(const linkaddr_t *originator, uint8_t seqno, 
+                    uint8_t hops, uint8_t *payload, uint16_t payload_len)
 {
   unsigned long time;
   uint16_t data;
   int i;
-
+  rtimer_clock_t timestamp;
   printf("%u", 8 + payload_len / 2);
   /* Timestamp. Ignore time synch for now. */
   time = get_time();
-  printf(" %lu %lu 0", ((time >> 16) & 0xffff), time & 0xffff);
+  //timestamp = timesynch_time();
+  printf(" %lu %lu %u", ((time >> 16) & 0xffff), time & 0xffff, timestamp);
   /* Ignore latency for now */
   printf(" %u %u %u %u",
          originator->u8[0] + (originator->u8[1] << 8), seqno, hops, 0);
@@ -106,7 +107,7 @@ collect_common_recv(const linkaddr_t *originator, uint8_t seqno, uint8_t hops,
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(collect_common_process, ev, data)
 {
-  static struct etimer period_timer, wait_timer, danger_timer;
+  static struct etimer period_timer, wait_timer;
   PROCESS_BEGIN();
 
   collect_common_net_init();

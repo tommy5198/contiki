@@ -30,6 +30,18 @@
 #ifndef PROJECT_CONF_H_
 #define PROJECT_CONF_H_
 
+#define LAB 1
+#ifdef TIMESYNC
+#undef TIMESYNCH_CONF_ENABLED  // TO ENABLE THE Implicit Network Time Synchronization
+#define TIMESYNCH_CONF_ENABLED 1 // TO ENABLE THE Implicit Network Time Synchronization
+//Define the network stack
+#define NETSTACK_CONF_NETWORK rime_driver // Define the network driver to use
+#define NETSTACK_CONF_MAC     csma_driver // Define the MAC driver to use
+#define NETSTACK_CONF_RDC     nullrdc_driver // Define the RDC driver to use. 
+#define NETSTACK_CONF_FRAMER  framer_802154 // Define the framer driver to use
+#define NETSTACK_CONF_RADIO   cc2420_driver // Define the radio driver to use. 
+#endif
+
 #ifndef WITH_NON_STORING
 #define WITH_NON_STORING 0 /* Set this to run with non-storing mode */
 #endif /* WITH_NON_STORING */
@@ -61,10 +73,11 @@
 #define RPL_CONF_DEFAULT_ROUTE_INFINITE_LIFETIME 1
 
 /* em test */
+#if LAB
 #define RPL_CONF_OF_OCP RPL_OCP_OF0
 #define RPL_CONF_SUPPORTED_OFS {&rpl_of0}
 #define EM_PROTOCOL
-
+#endif
 /* Save some ROM */
 #undef UIP_CONF_TCP
 #define UIP_CONF_TCP                   0
